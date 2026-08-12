@@ -1,0 +1,18 @@
+{
+  "name": "xi-rpl-2-project",
+  "version": "1.0.0",
+  "private": true,
+  "description": "XI RPL 2 PROJECT - full-stack student hub",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
