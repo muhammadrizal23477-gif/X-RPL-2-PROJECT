@@ -1,0 +1,17 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin Panel • XI RPL 2</title><link rel="stylesheet" href="/css/admin.css"></head><body>
+<div class="admin-shell">
+<aside><div class="admin-brand"><img src="/assets/img/logo.png"><b>XI RPL 2<br><i>PROJECT</i></b></div>
+<nav><a class="active">▣ Dashboard</a><a>♙ Data Siswa</a><a>▤ Tugas</a><a>ⓢ Keuangan</a><a>⚑ Pengumuman</a><a>⚙ Pengaturan</a></nav><a href="/" class="logout">↪ Keluar</a></aside>
+<main><header><div><b>Dashboard</b></div><span>◯</span></header>
+<section class="stats"><div><small>Total Siswa</small><b>126</b></div><div><small>Tugas Aktif</small><b>24</b></div><div><small>Pengumuman</small><b>8</b></div><div><small>Saldo Sekolah</small><b>Rp 12.750.000</b></div></section>
+<section class="panel-grid"><div class="panel"><h3>Statistik Tugas</h3><small>Tugas Selesai vs Belum Selesai</small><div class="donut">70%</div></div><div class="panel"><h3>Pengumuman Terbaru</h3><div class="announcement">Libur Semester Ganjil <small>20 Des 2024</small></div><div class="announcement">Workshop Public Speaking <small>18 Des 2024</small></div><div class="announcement">Ujian Praktikum Fisika <small>15 Des 2024</small></div></div></section>
+<section class="admin-create"><h2>🔐 Create Admin Khusus</h2><p>Hanya Admin Utama yang dapat membuat kode admin tambahan.</p><div class="form-row"><input id="label" placeholder="Label, contoh: Admin Kelas"><button id="create">+ Buat Kode</button></div><div id="result"></div><div id="codes"></div></section>
+</main></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
+let sb,profile;
+const $=x=>document.getElementById(x);
+async function boot(){let c=await fetch('/api/config').then(r=>r.json());sb=window.supabase.createClient(c.supabaseUrl,c.supabaseAnonKey);let {data:{session}}=await sb.auth.getSession();if(!session){location.href='/';return}let {data:p}=await sb.from('profiles').select('*').eq('id',session.user.id).single();profile=p;if(p?.role!=='superadmin'){document.body.innerHTML='<div class="denied">Akses hanya untuk Admin Utama.<br><a href="/">Kembali</a></div>';return}load()}
+async function load(){let {data}=await sb.from('admin_codes').select('*').order('created_at',{ascending:false});$('codes').innerHTML=(data||[]).map(x=>`<div class="code"><b>${x.label}</b><span>${x.code}</span><small>${x.used_by?'Dipakai':'Belum dipakai'} ${x.revoked_at?'• Dicabut':''}</small><button onclick="revoke('${x.id}')">Cabut</button></div>`).join('')||'<p>Belum ada kode.</p>'}
+$('create').onclick=async()=>{let {data,error}=await sb.rpc('create_admin_code',{p_label:$('label').value||'Admin Khusus'});$('result').textContent=error?error.message:'Kode baru: '+data;$('label').value='';load()};
+window.revoke=async id=>{await sb.from('admin_codes').update({revoked_at:new Date().toISOString()}).eq('id',id);load()};boot();
+</script></body></html>
